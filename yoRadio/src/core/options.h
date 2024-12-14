@@ -31,14 +31,12 @@ The connection tables are located here https://github.com/e2002/yoradio#connecti
 #define DSP_ST7789      4     // 320x240  2.4'  https://aliexpress.com/item/32960241206.html 
 #define DSP_SH1106      5     // 128x64   1.3'  https://aliexpress.com/item/32683094040.html
 #define DSP_1602I2C     6     // 16x2           https://aliexpress.com/item/32305776560.html
-#define DSP_4002I2C     6    // 40x2           https://www.aliexpress.com/item/32812359147.html
 #define DSP_SSD1306x32  7     // 128x32   0.91' https://aliexpress.com/item/32798439084.html
 #define DSP_SSD1327     8     // 128x128  1.5'  https://aliexpress.com/item/1005001414175498.html
 #define DSP_ILI9341     9     // 320x240  3.2'  https://aliexpress.com/item/33048191074.html
 #define DSP_SSD1305     10    // 128x64   2.4'  SSD1305 and SSD1309 SPI https://aliexpress.com/item/32950307344.html
 #define DSP_SH1107      11    // 128x64   1.3'  https://aliexpress.com/item/4000551696674.html
 #define DSP_1602        12    // 16x2           https://aliexpress.com/item/32685016568.html
-#define DSP_4002        12    // 40x2           https://www.aliexpress.com/item/1005006212594870.html
 #define DSP_GC9106      13    // 160x80   0.96' (looks like ST7735S, but it's not him) https://aliexpress.com/item/32947890530.html
 #define DSP_2004I2C     14    // 20x4           https://aliexpress.com/item/32783128355.html
 #define DSP_2004        15    // 20x4           https://aliexpress.com/item/32783128355.html
@@ -52,6 +50,8 @@ The connection tables are located here https://github.com/e2002/yoradio#connecti
 #define DSP_ILI9486     22    // (Testing mode) 480x320  3.5'  https://aliexpress.com/item/1005001999296476.html?sku_id=12000018365356568
 #define DSP_SSD1322     23    // 256x64   2.8'  https://aliexpress.com/item/1005003480981568.html
 #define DSP_ST7920      24    // 128x64   2.6'  https://aliexpress.com/item/32699482638.html
+#define DSP_4002I2C     25    // 40x2           https://www.aliexpress.com/item/32812359147.html
+#define DSP_4002        26    // 40x2           https://www.aliexpress.com/item/1005006212594870.html
 #define DSP_CUSTOM      101   // your display
 
 #ifndef DSP_MODEL
