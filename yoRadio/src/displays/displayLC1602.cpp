@@ -22,7 +22,7 @@ void DspCore::apScreen()
   print(utf8Rus(const_lcdApMode, false));
   setCursor(0, 1);
   print(WiFi.softAPIP().toString().c_str());
-#ifdef LCD_2004 || LCD_4002
+#ifdef LCD_2004
   setCursor(0, 2);
   print(utf8Rus(const_lcdApName, false));
   print(apSsid);
