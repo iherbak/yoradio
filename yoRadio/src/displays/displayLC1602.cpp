@@ -1,6 +1,6 @@
 #include "../core/options.h"
 
-#if DSP_MODEL==DSP_1602I2C || DSP_MODEL==DSP_1602 || DSP_MODEL==DSP_2004 || DSP_MODEL==DSP_2004I2C
+#if DSP_MODEL==DSP_1602I2C || DSP_MODEL==DSP_1602 || DSP_MODEL==DSP_2004 || DSP_MODEL==DSP_2004I2C || DSP_4002 || DSP_4002I2C
 
 #include "displayLC1602.h"
 #include "../core/player.h"
