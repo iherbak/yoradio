@@ -18,7 +18,11 @@
   #define LCD_2004
 #endif
 
-#if DSP_MODEL==DSP_1602I2C || DSP_MODEL==DSP_2004I2C
+#if DSP_MODEL==DSP_4002 || DSP_MODEL==DSP_4002I2C
+  #define LCD_4002
+#endif
+
+#if DSP_MODEL==DSP_1602I2C || DSP_MODEL==DSP_2004I2C || DSP_MODEL==DSP_4002I2C
   #define LCD_I2C
   #include "../LiquidCrystalI2C/LiquidCrystalI2CEx.h"
 #else
@@ -28,6 +32,8 @@
 #ifdef LCD_I2C
   #ifdef LCD_2004
     #define DSP_INIT LiquidCrystal_I2C(SCREEN_ADDRESS, 20, 4, I2C_SDA, I2C_SCL)
+  #elif defined(LCD_4002)
+    #define DSP_INIT LiquidCrystal_I2C(SCREEN_ADDRESS, 40, 2, I2C_SDA, I2C_SCL)
   #else
     #define DSP_INIT LiquidCrystal_I2C(SCREEN_ADDRESS, 16, 2, I2C_SDA, I2C_SCL)
   #endif
@@ -40,6 +46,12 @@
     #include "conf/displayLCD2004conf_custom.h"
   #else
     #include "conf/displayLCD2004conf.h"
+  #endif
+#elif defined(LCD_4002)
+  #if __has_include("conf/displayLCD4002conf_custom.h")
+    #include "conf/displayLCD4002conf_custom.h"
+  #else
+    #include "conf/displayLCD4002conf.h"
   #endif
 #else
   #if __has_include("conf/displayLCD1602conf_custom.h")

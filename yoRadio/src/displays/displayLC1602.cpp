@@ -21,7 +21,7 @@ void DspCore::apScreen() {
   print(utf8Rus(const_lcdApMode, false));
   setCursor(0,1);
   print(WiFi.softAPIP().toString().c_str());
-#ifdef LCD_2004
+#ifdef LCD_2004 || LCD_4002
   setCursor(0, 2);
   print(utf8Rus(const_lcdApName, false));
   print(apSsid);
@@ -38,6 +38,8 @@ void DspCore::initDisplay() {
 #else
   #ifdef LCD_2004
     begin(20, 4);
+  #elif defined(LCD_4002)
+    begin(40,2)
   #else
     begin(16, 2);
   #endif
@@ -84,6 +86,8 @@ void DspCore::fillRect(int16_t x, int16_t y, int16_t w, int16_t h, uint16_t colo
 uint16_t DspCore::width(){
 #ifdef LCD_2004
   return 20;
+#elif defined(LCD_4002)
+  return 40;
 #else
   return 16;
 #endif
@@ -92,6 +96,8 @@ uint16_t DspCore::width(){
 uint16_t DspCore::height(){
 #ifdef LCD_2004
   return 4;
+#elif defined(LCD_4002)
+ return 2;
 #else
   return 2;
 #endif
