@@ -16,7 +16,7 @@
   #include "displayST7789.h"
 #elif DSP_MODEL==DSP_SH1106
   #include "displaySH1106.h"
-#elif DSP_MODEL==DSP_1602I2C || DSP_MODEL==DSP_2004I2C
+#elif DSP_MODEL==DSP_1602I2C || DSP_MODEL==DSP_2004I2C || DSP_MODEL==DSP_4002I2C
   #include "displayLC1602.h"
 #elif DSP_MODEL==DSP_SSD1327
   #include "displaySSD1327.h"
@@ -26,7 +26,7 @@
   #include "displaySSD1305.h"
 #elif DSP_MODEL==DSP_SH1107
   #include "displaySH1106.h"
-#elif DSP_MODEL==DSP_1602 || DSP_MODEL==DSP_2004
+#elif DSP_MODEL==DSP_1602 || DSP_MODEL==DSP_2004 || DSP_MODELL==DSP_4002
   #include "displayLC1602.h"
 #elif DSP_MODEL==DSP_GC9106
   #include "displayGC9106.h"
