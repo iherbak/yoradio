@@ -76,10 +76,5 @@
     void _clockDate();
     void _clockTime();
     uint8_t _charWidth(unsigned char c);
-    #if DSP_MODEL==DSP_ILI9225
-      uint16_t _bgcolor, _fgcolor;
-      int16_t  _cursorx, _cursory;
-      bool _gFont/*, _started*/;
-    #endif
 
 #endif

@@ -1,7 +1,5 @@
 #include "../core/options.h"
 
-#if DSP_MODEL == DSP_1602I2C || DSP_MODEL == DSP_1602 || DSP_MODEL == DSP_2004 || DSP_MODEL == DSP_2004I2C || DSP_MODEL == DSP_4002 || DSP_MODEL == DSP_4002I2C
-
 #include "displayLC1602.h"
 #include "../core/player.h"
 #include "../core/config.h"
@@ -9,7 +7,6 @@
 
 #ifndef SCREEN_ADDRESS
 #define SCREEN_ADDRESS 0x27 ///< See datasheet for Address or scan it https://create.arduino.cc/projecthub/abdularbi17/how-to-scan-i2c-address-in-arduino-eaadda
-#endif
 
 DspCore::DspCore() : DSP_INIT {}
 
@@ -22,30 +19,12 @@ void DspCore::apScreen()
   print(utf8Rus(const_lcdApMode, false));
   setCursor(0, 1);
   print(WiFi.softAPIP().toString().c_str());
-#ifdef LCD_2004
-  setCursor(0, 2);
-  print(utf8Rus(const_lcdApName, false));
-  print(apSsid);
-  setCursor(0, 3);
-  print(utf8Rus(const_lcdApPass, false));
-  print(apPassword);
-#endif
 }
 
 void DspCore::initDisplay()
 {
-#ifdef LCD_I2C
   init();
   backlight();
-#else
-#ifdef LCD_2004
-  begin(20, 4);
-#elif defined(LCD_4002)
-  begin(40, 2)
-#else
-  begin(16, 2);
-#endif
-#endif
   clearClipping();
 
   plTtemsCount = PLMITEMS;
@@ -187,24 +166,12 @@ void DspCore::fillRect(int16_t x, int16_t y, int16_t w, int16_t h, uint16_t colo
 
 uint16_t DspCore::width()
 {
-#ifdef LCD_2004
-  return 20;
-#elif defined(LCD_4002)
   return 40;
-#else
-  return 16;
-#endif
 }
 
 uint16_t DspCore::height()
 {
-#ifdef LCD_2004
-  return 4;
-#elif defined(LCD_4002)
   return 2;
-#else
-  return 2;
-#endif
 }
 
 uint8_t DspCore::_charWidth(unsigned char c)
@@ -267,16 +234,12 @@ void DspCore::invert() {}
 void DspCore::sleep(void)
 {
   noDisplay();
-#ifdef LCD_I2C
   noBacklight();
-#endif
 }
 void DspCore::wake(void)
 {
   display();
-#ifdef LCD_I2C
   backlight();
-#endif
 }
 
 void DspCore::writePixel(int16_t x, int16_t y, uint16_t color) {}

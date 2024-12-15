@@ -10,11 +10,6 @@
 
 
 
-#if NEXTION_RX!=255 && NEXTION_TX!=255
-  #define USE_NEXTION
-  #include "../displays/nextion.h"
-#endif
-
 #ifndef DUMMYDISPLAY
   void loopDspTask(void * pvParameters);
 

@@ -268,94 +268,7 @@ void SliderWidget::_clear() {
 void SliderWidget::_reset() {
   _oldvalwidth = 0;
 }
-/************************
-      VU WIDGET
- ************************/
-#if !defined(DSP_LCD) && !defined(DSP_OLED)
-VuWidget::~VuWidget() {
-  if(_canvas) free(_canvas);
-}
 
-void VuWidget::init(WidgetConfig wconf, VUBandsConfig bands, uint16_t vumaxcolor, uint16_t vumincolor, uint16_t bgcolor) {
-  Widget::init(wconf, bgcolor, bgcolor);
-  _vumaxcolor = vumaxcolor;
-  _vumincolor = vumincolor;
-  _bands = bands;
-  _canvas = new Canvas(_bands.width * 2 + _bands.space, _bands.height);
-}
-
-void VuWidget::_draw(){
-  if(!_active || _locked) return;
-#if !defined(USE_NEXTION) && I2S_DOUT==255
-  static uint8_t cc = 0;
-  cc++;
-  if(cc>0){
-    player.getVUlevel();
-    cc=0;
-  }
-#endif
-  static uint16_t measL, measR;
-  uint16_t bandColor;
-  uint16_t dimension = _config.align?_bands.width:_bands.height;
-  uint8_t L = map(player.vuLeft, 255, 0, 0, dimension);
-  uint8_t R = map(player.vuRight, 255, 0, 0, dimension);
-  bool played = player.isRunning();
-  if(played){
-    measL=(L>=measL)?measL + _bands.fadespeed:L;
-    measR=(R>=measR)?measR + _bands.fadespeed:R;
-  }else{
-    if(measL<dimension) measL += _bands.fadespeed;
-    if(measR<dimension) measR += _bands.fadespeed;
-  }
-  if(measL>dimension) measL=dimension;
-  if(measR>dimension) measR=dimension;
-  uint8_t h=(dimension/_bands.perheight)-_bands.vspace;
-  _canvas->fillRect(0,0,_bands.width * 2 + _bands.space,_bands.height, _bgcolor);
-  for(int i=0; i<dimension; i++){
-    if(i%(dimension/_bands.perheight)==0){
-      if(_config.align){
-        #ifndef BOOMBOX_STYLE
-          bandColor = (i>_bands.width-(_bands.width/_bands.perheight)*4)?_vumaxcolor:_vumincolor;
-          _canvas->fillRect(i, 0, h, _bands.height, bandColor);
-          _canvas->fillRect(i + _bands.width + _bands.space, 0, h, _bands.height, bandColor);
-        #else
-          bandColor = (i>(_bands.width/_bands.perheight))?_vumincolor:_vumaxcolor;
-          _canvas->fillRect(i, 0, h, _bands.height, bandColor);
-          bandColor = (i>_bands.width-(_bands.width/_bands.perheight)*3)?_vumaxcolor:_vumincolor;
-          _canvas->fillRect(i + _bands.width + _bands.space, 0, h, _bands.height, bandColor);
-        #endif
-      }else{
-        bandColor = (i<(_bands.height/_bands.perheight)*3)?_vumaxcolor:_vumincolor;
-        _canvas->fillRect(0, i, _bands.width, h, bandColor);
-        _canvas->fillRect(_bands.width + _bands.space, i, _bands.width, h, bandColor);
-      }
-    }
-  }
-  if(_config.align){
-    #ifndef BOOMBOX_STYLE
-      _canvas->fillRect(_bands.width-measL, 0, measL, _bands.width, _bgcolor);
-      _canvas->fillRect(_bands.width * 2 + _bands.space - measR, 0, measR, _bands.width, _bgcolor);
-      dsp.drawRGBBitmap(_config.left, _config.top, _canvas->getBuffer(), _bands.width * 2 + _bands.space, _bands.height);
-    #else
-      _canvas->fillRect(0, 0, _bands.width-(_bands.width-measL), _bands.width, _bgcolor);
-      _canvas->fillRect(_bands.width * 2 + _bands.space - measR, 0, measR, _bands.width, _bgcolor);
-      dsp.drawRGBBitmap(_config.left, _config.top, _canvas->getBuffer(), _bands.width * 2 + _bands.space, _bands.height);
-    #endif
-  }else{
-    _canvas->fillRect(0, 0, _bands.width, measL, _bgcolor);
-    _canvas->fillRect(_bands.width + _bands.space, 0, _bands.width, measR, _bgcolor);
-    dsp.drawRGBBitmap(_config.left, _config.top, _canvas->getBuffer(), _bands.width * 2 + _bands.space, _bands.height);
-  }
-}
-
-void VuWidget::loop(){
-  if(_active || !_locked) _draw();
-}
-
-void VuWidget::_clear(){
-  dsp.fillRect(_config.left, _config.top, _bands.width * 2 + _bands.space, _bands.height, _bgcolor);
-}
-#else // DSP_LCD
 VuWidget::~VuWidget() { }
 void VuWidget::init(WidgetConfig wconf, VUBandsConfig bands, uint16_t vumaxcolor, uint16_t vumincolor, uint16_t bgcolor) {
   Widget::init(wconf, bgcolor, bgcolor);
@@ -363,7 +276,7 @@ void VuWidget::init(WidgetConfig wconf, VUBandsConfig bands, uint16_t vumaxcolor
 void VuWidget::_draw(){ }
 void VuWidget::loop(){ }
 void VuWidget::_clear(){ }
-#endif
+
 /************************
       NUM WIDGET
  ************************/
@@ -384,9 +297,6 @@ void NumWidget::setText(const char* txt) {
   _getBounds();
   if (strcmp(_oldtext, _text) == 0) return;
   uint16_t realth = _textheight;
-#if defined(DSP_OLED) && DSP_MODEL!=DSP_SSD1322
-  realth = _textheight*CHARHEIGHT;
-#endif
   if (_active) dsp.fillRect(_oldleft == 0 ? _realLeft() : min(_oldleft, _realLeft()),  _config.top-_textheight+1, max(_oldtextwidth, _textwidth), realth, _bgcolor);
   _oldtextwidth = _textwidth;
   _oldleft = _realLeft();
@@ -406,7 +316,6 @@ void NumWidget::_getBounds() {
 void NumWidget::_draw() {
   if(!_active) return;
   dsp.setNumFont(); // --------------SetBigFont
-  //dsp.setTextSize(1);
   dsp.setTextColor(_fgcolor, _bgcolor);
   dsp.setCursor(_realLeft(), _config.top);
   dsp.print(_text);

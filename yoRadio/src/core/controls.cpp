@@ -357,16 +357,10 @@ void onBtnLongPressStart(int id) {
       }
     case EVT_BTNCENTER:
     case EVT_ENCBTNB: {
-#       if defined(DUMMYDISPLAY) && !defined(USE_NEXTION)
-        break;
-#       endif
         display.putRequest(NEWMODE, display.mode() == PLAYER ? STATIONS : PLAYER);
         break;
       }
     case EVT_ENC2BTNB: {
-#       if defined(DUMMYDISPLAY) && !defined(USE_NEXTION)
-        break;
-#       endif
         display.putRequest(NEWMODE, display.mode() == PLAYER ? VOL : PLAYER);
         break;
       }
@@ -441,9 +435,7 @@ void controlsEvent(bool toRight, int8_t volDelta) {
     display.putRequest(NEWMODE, PLAYER);
   }
   if (display.mode() != STATIONS) {
-    #if !defined(DUMMYDISPLAY) || defined(USE_NEXTION)
       display.putRequest(NEWMODE, VOL);
-    #endif
     if(volDelta!=0){
       int nv = config.store.volume+volDelta;
       if(nv<0) nv=0;

@@ -8,12 +8,7 @@
 
 
 Display display;
-#ifdef USE_NEXTION
-Nextion nextion;
-#endif
 
-#ifndef DUMMYDISPLAY
-//============================================================================================================================
 DspCore dsp;
 
 Page *pages[] = { new Page(), new Page(), new Page() };
@@ -28,10 +23,8 @@ Page *pages[] = { new Page(), new Page(), new Page() };
 #ifndef DSP_TASK_DELAY
   #define DSP_TASK_DELAY  2
 #endif
-#if !((DSP_MODEL==DSP_ST7735 && DTYPE==INITR_BLACKTAB) || DSP_MODEL==DSP_ST7789 || DSP_MODEL==DSP_ST7796 || DSP_MODEL==DSP_ILI9488 || DSP_MODEL==DSP_ILI9486 || DSP_MODEL==DSP_ILI9341 || DSP_MODEL==DSP_ILI9225)
   #undef  BITRATE_FULL
   #define BITRATE_FULL     false
-#endif
 TaskHandle_t DspTask;
 QueueHandle_t displayQueue;
 
@@ -55,12 +48,6 @@ void loopDspTask(void * pvParameters){
 
 void Display::init() {
   Serial.print("##[BOOT]#\tdisplay.init\t");
-#ifdef USE_NEXTION
-  nextion.begin();
-#endif
-#if LIGHT_SENSOR!=255
-  analogSetAttenuation(ADC_0db);
-#endif
   _bootStep = 0;
   dsp.initDisplay();
   displayQueue=NULL;
@@ -68,8 +55,6 @@ void Display::init() {
   while(displayQueue==NULL){;}
   _createDspTask();
   while(!_bootStep==0) { delay(10); }
-  //_pager.begin();
-  //_bootScreen();
   Serial.println("done");
 }
 
@@ -87,52 +72,9 @@ void Display::_buildPager(){
   _meta.init("*", metaConf, config.theme.meta, config.theme.metabg);
   _title1.init("*", title1Conf, config.theme.title1, config.theme.background);
   _clock.init(clockConf, 0, 0);
-  #if DSP_MODEL==DSP_NOKIA5110
-    _plcurrent.init("*", playlistConf, 0, 1);
-  #else
     _plcurrent.init("*", playlistConf, config.theme.plcurrent, config.theme.plcurrentbg);
-  #endif
-  #if !defined(DSP_LCD)
-    _plcurrent.moveTo({TFT_FRAMEWDT, (uint16_t)(dsp.plYStart+dsp.plCurrentPos*dsp.plItemHeight), (int16_t)playlistConf.width});
-  #endif
-  #ifndef HIDE_TITLE2
-    _title2 = new ScrollWidget("*", title2Conf, config.theme.title2, config.theme.background);
-  #endif
-  #if !defined(DSP_LCD) && DSP_MODEL!=DSP_NOKIA5110
-    _plbackground = new FillWidget(playlBGConf, config.theme.plcurrentfill);
-    #if DSP_INVERT_TITLE || defined(DSP_OLED)
-      _metabackground = new FillWidget(metaBGConf, config.theme.metafill);
-    #else
-      _metabackground = new FillWidget(metaBGConfInv, config.theme.metafill);
-    #endif
-  #endif
-  #if DSP_MODEL==DSP_NOKIA5110
-    _plbackground = new FillWidget(playlBGConf, 1);
-    //_metabackground = new FillWidget(metaBGConf, 1);
-  #endif
-  #ifndef HIDE_VU
-    _vuwidget = new VuWidget(vuConf, bandsConf, config.theme.vumax, config.theme.vumin, config.theme.background);
-  #endif
-  #ifndef HIDE_VOLBAR
-    _volbar = new SliderWidget(volbarConf, config.theme.volbarin, config.theme.background, 254, config.theme.volbarout);
-  #endif
-  #ifndef HIDE_HEAPBAR
-    _heapbar = new SliderWidget(heapbarConf, config.theme.buffer, config.theme.background, psramInit()?300000:1600 * AUDIOBUFFER_MULTIPLIER2);
-  #endif
-  #ifndef HIDE_VOL
-    _voltxt = new TextWidget(voltxtConf, 10, false, config.theme.vol, config.theme.background);
-  #endif
-  #ifndef HIDE_IP
-    _volip = new TextWidget(iptxtConf, 30, false, config.theme.ip, config.theme.background);
-  #endif
-  #ifndef HIDE_RSSI
-    _rssi = new TextWidget(rssiConf, 20, false, config.theme.rssi, config.theme.background);
-  #endif
   _nums.init(numConf, 10, false, config.theme.digit, config.theme.background);
-  #ifndef HIDE_WEATHER
-    _weather = new ScrollWidget("\007", weatherConf, config.theme.weather, config.theme.background);
-  #endif
-  
+ 
   if(_volbar)   _footer.addWidget( _volbar);
   if(_voltxt)   _footer.addWidget( _voltxt);
   if(_volip)    _footer.addWidget( _volip);
@@ -206,21 +148,11 @@ void Display::_apScreen() {
 
 void Display::_start() {
   if(_boot) _pager.removePage(_boot);
-  #ifdef USE_NEXTION
-    nextion.wake();
-  #endif
   if (network.status != CONNECTED && network.status != SDREADY) {
     _apScreen();
-    #ifdef USE_NEXTION
-      nextion.apScreen();
-    #endif
     _bootStep = 2;
     return;
   }
-  #ifdef USE_NEXTION
-    //nextion.putcmd("page player");
-    nextion.start();
-  #endif
   _buildPager();
   _mode = PLAYER;
   config.setTitle(const_PlReady);
@@ -259,10 +191,6 @@ void Display::_setReturnTicker(uint8_t time_s){
 }
 
 void Display::_swichMode(displayMode_e newmode) {
-  #ifdef USE_NEXTION
-    //nextion.swichMode(newmode);
-    nextion.putRequest({NEWMODE, newmode});
-  #endif
   if (newmode == _mode || (network.status != CONNECTED && network.status != SDREADY)) return;
   _mode = newmode;
   dsp.setScrollId(NULL);
@@ -329,9 +257,6 @@ void Display::putRequest(displayRequestType_e type, int payload){
   request.type = type;
   request.payload = payload;
   xQueueSend(displayQueue, &request, DSQ_SEND_DELAY);
-  #ifdef USE_NEXTION
-    nextion.putRequest(request);
-  #endif
 }
 
 void Display::_layoutChange(bool played){
@@ -366,9 +291,6 @@ void Display::loop() {
   }
   if(displayQueue==NULL) return;
   _pager.loop();
-#ifdef USE_NEXTION
-  nextion.loop();
-#endif
   requestParams_t request;
   if(xQueueReceive(displayQueue, &request, DSP_QUEUE_TICKS)){
     bool pm_result = true;
@@ -378,10 +300,6 @@ void Display::loop() {
         case NEWMODE: _swichMode((displayMode_e)request.payload); break;
         case CLOCK: 
           if(_mode==PLAYER) _time(); 
-          /*#ifdef USE_NEXTION
-            if(_mode==TIMEZONE) nextion.localTime(network.timeinfo);
-            if(_mode==INFO)     nextion.rssi();
-          #endif*/
           break;
         case NEWTITLE: _title(); break;
         case NEWSTATION: _station(); break;
@@ -423,11 +341,6 @@ void Display::loop() {
         }
         case BOOTSTRING: {
           if(_bootstring) _bootstring->setText(config.ssids[request.payload].ssid, bootstrFmt);
-          /*#ifdef USE_NEXTION
-            char buf[50];
-            snprintf(buf, 50, bootstrFmt, config.ssids[request.payload].ssid);
-            nextion.bootString(buf);
-          #endif*/
           break;
         }
         case WAITFORSD: {
@@ -473,11 +386,6 @@ void Display::_setRSSI(int rssi) {
 void Display::_station() {
   _meta.setAlign(metaConf.widget.align);
   _meta.setText(config.station.name);
-/*#ifdef USE_NEXTION
-  nextion.newNameset(config.station.name);
-  nextion.bitrate(config.station.bitrate);
-  nextion.bitratePic(ICON_NA);
-#endif*/
 }
 
 char *split(char *str, const char *delim) {
@@ -499,10 +407,6 @@ void Display::_title() {
       _title1.setText(config.station.title);
       if(_title2) _title2->setText("");
     }
-    /*#ifdef USE_NEXTION
-      nextion.newTitle(config.station.title);
-    #endif*/
-    
   }else{
     _title1.setText("");
     if(_title2) _title2->setText("");
@@ -512,17 +416,7 @@ void Display::_title() {
 }
 
 void Display::_time(bool redraw) {
-  
-#if LIGHT_SENSOR!=255
-  if(config.store.dspon) {
-    config.store.brightness = AUTOBACKLIGHT(analogRead(LIGHT_SENSOR));
-    config.setBrightness();
-  }
-#endif
   _clock.draw();
-  /*#ifdef USE_NEXTION
-    nextion.printClock(network.timeinfo);
-  #endif*/
 }
 
 void Display::_volume() {
@@ -534,9 +428,6 @@ void Display::_volume() {
     _setReturnTicker(3);
     _nums.setText(config.store.volume, numtxtFmt);
   }
-  /*#ifdef USE_NEXTION
-    nextion.setVol(config.store.volume, _mode == VOL);
-  #endif*/
 }
 
 void Display::flip(){ dsp.flip(); }
@@ -550,43 +441,10 @@ void  Display::setContrast(){
 }
 
 bool Display::deepsleep(){
-#if defined(LCD_I2C) || defined(DSP_OLED) || BRIGHTNESS_PIN!=255
   dsp.sleep();
   return true;
-#endif
-  return false;
 }
 
 void Display::wakeup(){
-#if defined(LCD_I2C) || defined(DSP_OLED) || BRIGHTNESS_PIN!=255
   dsp.wake();
-#endif
 }
-//============================================================================================================================
-#else // !DUMMYDISPLAY
-//============================================================================================================================
-void Display::init(){
-  #ifdef USE_NEXTION
-  nextion.begin(true);
-  #endif
-}
-void Display::_start(){
-  #ifdef USE_NEXTION
-  //nextion.putcmd("page player");
-  nextion.start();
-  #endif
-  config.setTitle(const_PlReady);
-}
-void Display::putRequest(displayRequestType_e type, int payload){
-  if(type==DSP_START) _start();
-  #ifdef USE_NEXTION
-    requestParams_t request;
-    request.type = type;
-    request.payload = payload;
-    nextion.putRequest(request);
-  #else
-    if(type==NEWMODE) mode((displayMode_e)payload);
-  #endif
-}
-//============================================================================================================================
-#endif // DUMMYDISPLAY
