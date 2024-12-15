@@ -43,12 +43,12 @@ The connection tables are located here https://github.com/e2002/yoradio#connecti
 //#define NEXTION_TX    255                   /*  Nextion TX pin  */
   
 /*  I2C PINS  */
-#define I2C_SDA           13                /*  I2C SDA pin. It is best to connect to pin 21.  */
-#define I2C_SCL           02                /*  I2C SCL pin. It is best to connect to pin 22.  */
+#define I2C_SDA           21                /*  I2C SDA pin. It is best to connect to pin 21.  */
+#define I2C_SCL           22                /*  I2C SCL pin. It is best to connect to pin 22.  */
 //#define I2C_RST           -1                /*  I2C RST pin. Set to -1 if not used  */
 
 /*        I2S DAC                 */
-#define I2S_DOUT          22                /*  DIN connection. Should be set to 255 if the board is not used */
+//#define I2S_DOUT          22                /*  DIN connection. Should be set to 255 if the board is not used */
 //#define I2S_BCLK          26                /*  BCLK Bit clock */
 //#define I2S_LRC           25                /*  WSEL Left Right Clock */
 /******************************************/

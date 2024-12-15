@@ -44,7 +44,7 @@ class Display {
     Pager _pager;
     Page _footer;
     VuWidget *_vuwidget;
-    NumWidget _nums;
+    //NumWidget _nums;
     ProgressWidget _testprogress;
     ClockWidget _clock;
     Page *_boot;
