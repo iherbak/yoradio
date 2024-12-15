@@ -482,11 +482,6 @@ void onBtnClick(int id) {
           #endif
           player.sendCommand({PR_PLAY, display.currentPlItem});
         }
-        if(network.status==SOFT_AP || display.mode()==LOST){
-          #ifdef USE_SD
-            config.changeMode();
-          #endif
-        }
         break;
       }
     case EVT_BTNRIGHT: {
@@ -511,12 +506,6 @@ void onBtnClick(int id) {
         }
         break;
       }
-    #ifdef USE_SD
-    case EVT_BTNMODE: {
-      config.changeMode();
-      break;
-    }
-    #endif
     default: break;
   }
 }

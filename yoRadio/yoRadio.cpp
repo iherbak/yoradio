@@ -18,13 +18,11 @@
 #include "Arduino.h"
 #include "src/core/options.h"
 #include "src/core/config.h"
-#include "src/core/telnet.h"
 #include "src/core/player.h"
 #include "src/core/display.h"
 #include "src/core/network.h"
 #include "src/core/netserver.h"
 #include "src/core/controls.h"
-#include "src/core/mqtt.h"
 #include "src/core/optionschecker.h"
 
 extern __attribute__((weak)) void yoradio_on_setup();
@@ -51,13 +49,9 @@ void setup() {
   }
   config.initPlaylistMode();
   netserver.begin();
-  telnet.begin();
   initControls();
   display.putRequest(DSP_START);
   while(!display.ready()) delay(10);
-  #ifdef MQTT_ROOT_TOPIC
-    mqttInit();
-  #endif
   if (config.getMode()==PM_SDCARD) player.initHeaders(config.station.url);
   player.lockOutput=false;
   if (config.store.smartstart == 1) player.sendCommand({PR_PLAY, config.store.lastStation});
@@ -65,7 +59,6 @@ void setup() {
 }
 
 void loop() {
-  telnet.loop();
   if (network.status == CONNECTED || network.status==SDREADY) {
     player.loop();
     //loopControls();

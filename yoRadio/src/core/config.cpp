@@ -5,9 +5,6 @@
 #include "player.h"
 #include "network.h"
 #include "netserver.h"
-#ifdef USE_SD
-#include "sdmanager.h"
-#endif
 Config config;
 
 #if DSP_HSPI || TS_HSPI || VS_HSPI
@@ -84,12 +81,8 @@ void Config::init()
   if (emptyFS)
     BOOTLOG("SPIFFS is empty!");
   ssidsCount = 0;
-//!!_cardStatus = CS_NONE;
-#ifdef USE_SD
-  _SDplaylistFS = getMode() == PM_SDCARD ? &sdman : (true ? &SPIFFS : _SDplaylistFS);
-#else
+  //!!_cardStatus = CS_NONE;
   _SDplaylistFS = &SPIFFS;
-#endif
   // if(SDC_CS!=255) randomSeed(analogRead(SDC_CS));
   randomSeed(esp_random());
   backupSDStation = 0;
@@ -97,108 +90,6 @@ void Config::init()
   _bootDone = false;
   // bootInfo();
 }
-
-#ifdef USE_SD
-/*
-void Config::checkSD(){
-  cardStatus_e prevCardStatus = _cardStatus;
-  if(sdman.cardPresent()){
-    if(_cardStatus==CS_NONE || _cardStatus==CS_PRESENT || _cardStatus==CS_EJECTED) {
-      _cardStatus=CS_PRESENT;
-    }else{
-      _cardStatus=CS_MOUNTED;
-    }
-    if(_cardStatus==CS_PRESENT && getMode()==PM_WEB && SD_AUTOPLAY && prevCardStatus==CS_EJECTED) config.changeMode(PM_SDCARD);
-  }else{
-    if(_cardStatus==CS_MOUNTED || _cardStatus==CS_PRESENT || _cardStatus==CS_EJECTED){
-      if(_cardStatus!=CS_EJECTED && getMode()==PM_SDCARD && SD_AUTOPLAY) config.changeMode(PM_WEB);
-      _cardStatus=CS_EJECTED;
-    }
-    backupSDStation = 0;
-  }
-}
-*/
-void Config::changeMode(int newmode)
-{
-  if (SDC_CS == 255)
-    return;
-  if (network.status == SOFT_AP || display.mode() == LOST)
-  {
-    store.play_mode = PM_SDCARD;
-    save();
-    delay(50);
-    ESP.restart();
-  }
-  if (!sdman.ready)
-  {
-    sdman.mount();
-    if (!sdman.ready)
-    {
-      Serial.println("##[ERROR]#\tSD Not Found");
-      netserver.requestOnChange(GETPLAYERMODE, 0);
-      return;
-    }
-  }
-  if (getMode() == PM_SDCARD)
-    store.lastStation = config.backupLastStation;
-  if (newmode < 0)
-  {
-    store.play_mode++;
-    if (getMode() > MAX_PLAY_MODE)
-    {
-      store.play_mode = 0;
-    }
-  }
-  else
-  {
-    store.play_mode = (playMode_e)newmode;
-  }
-  save();
-  _SDplaylistFS = getMode() == PM_SDCARD ? &sdman : (true ? &SPIFFS : _SDplaylistFS);
-  if (getMode() == PM_SDCARD && sdman.status() != CS_MOUNTED)
-  {
-    display.putRequest(NEWMODE, SDCHANGE);
-    while (display.mode() != SDCHANGE)
-      delay(10);
-    delay(50);
-  }
-  // if(getMode()==PM_WEB) player.setResumeFilePos(0);
-  if ((getMode() == PM_WEB && network.status == SDREADY))
-    ESP.restart();
-  initPlaylistMode();
-  if (store.smartstart == 1)
-    player.sendCommand({PR_PLAY, store.lastStation});
-  // else
-  //   player.sendCommand({PR_STOP, 0});
-  netserver.resetQueue();
-  netserver.requestOnChange(GETPLAYERMODE, 0);
-  netserver.requestOnChange(GETMODE, 0);
-  display.resetQueue();
-  display.putRequest(NEWMODE, PLAYER);
-  display.putRequest(NEWSTATION);
-}
-
-void Config::initSDPlaylist(bool doIndex)
-{
-  store.countStation = 0;
-  doIndex = !sdman.exists(INDEX_SD_PATH);
-  if (doIndex)
-    sdman.indexSDPlaylist();
-  if (SDPLFS()->exists(INDEX_SD_PATH))
-  {
-    File index = SDPLFS()->open(INDEX_SD_PATH, "r");
-    store.countStation = index.size() / 4;
-    if (doIndex)
-    {
-      store.lastStation = random(1, store.countStation);
-      backupSDStation = store.lastStation;
-    }
-    index.close();
-    save();
-  }
-}
-
-#endif // #ifdef USE_SD
 
 bool Config::spiffsCleanup()
 {
@@ -215,45 +106,8 @@ bool Config::spiffsCleanup()
 void Config::initPlaylistMode()
 {
   sdResumePos = 0;
-// SDinit = false;
-#ifdef USE_SD
-  if (!sdman.init())
-  {
-    store.play_mode = PM_WEB;
-    Serial.println("SD Mount Failed");
-    changeMode(PM_WEB);
-  }
-  else
-  {
-    Serial.println("SD Mounted");
-    if (getMode() == PM_SDCARD)
-    {
-      if (sdman.status() != CS_MOUNTED)
-      {
-        sdman.status(CS_MOUNTED);
-        if (_bootDone)
-          Serial.println("Waiting for SD card indexing...");
-        else
-          BOOTLOG("Waiting for SD card indexing...");
-        initSDPlaylist();
-      }
-      else
-      {
-        initSDPlaylist(false);
-        if (backupSDStation == 0)
-        {
-          store.lastStation = random(1, store.countStation);
-          backupSDStation = store.lastStation;
-        }
-        else
-          store.lastStation = backupSDStation;
-      }
-    }
-    // SDinit = true;
-  }
-#else // ifdef USE_SD
+
   store.play_mode = PM_WEB;
-#endif
   if (getMode() == PM_WEB && !emptyFS)
     initPlaylist();
 

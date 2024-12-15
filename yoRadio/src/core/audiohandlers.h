@@ -7,8 +7,7 @@
 
 void audio_info(const char *info) {
   if(player.lockOutput) return;
-  if(config.store.audioinfo) telnet.printf("##AUDIO.INFO#: %s\n", info);
-  
+ 
   if (strstr(info, "format is aac")  != NULL) { config.setBitrateFormat(BF_AAC); display.putRequest(DBITRATE); }
   if (strstr(info, "format is flac") != NULL) { config.setBitrateFormat(BF_FLAC); display.putRequest(DBITRATE); }
   if (strstr(info, "format is mp3")  != NULL) { config.setBitrateFormat(BF_MP3); display.putRequest(DBITRATE); }
@@ -27,7 +26,6 @@ void audio_info(const char *info) {
 
 void audio_bitrate(const char *info)
 {
-  if(config.store.audioinfo) telnet.printf("%s %s\n", "##AUDIO.BITRATE#:", info);
   config.station.bitrate = atoi(info) / 1000;
   display.putRequest(DBITRATE);
   netserver.requestOnChange(BITRATE, 0);
@@ -46,7 +44,6 @@ bool printable(const char *info) {
 
 void audio_showstation(const char *info) {
   bool p = printable(info) && (strlen(info) > 0);(void)p;
-  //config.setTitle(p?info:config.station.name);
   if(player.remoteStationName){
     config.setStation(p?info:config.station.name);
     display.putRequest(NEWSTATION);
@@ -66,9 +63,7 @@ void audio_showstreamtitle(const char *info) {
 }
 
 void audio_error(const char *info) {
-  //config.setTitle(info);
   player.setError(info);
-  telnet.printf("##ERROR#:\t%s\n", info);
 }
 
 void audio_id3artist(const char *info){
@@ -102,7 +97,6 @@ void audio_beginSDread(){
 
 void audio_id3data(const char *info){  //id3 metadata
     if(player.lockOutput) return;
-    telnet.printf("##AUDIO.ID3#: %s\n", info);
 }
 
 void audio_eof_mp3(const char *info){  //end of file

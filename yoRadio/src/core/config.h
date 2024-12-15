@@ -38,12 +38,6 @@
 
 #define MAX_PLAY_MODE   1
 
-#if SDC_CS!=255
-  #define USE_SD
-#endif
-#if ESP_ARDUINO_VERSION >= ESP_ARDUINO_VERSION_VAL(3, 0, 0)
-  #define ESP_ARDUINO_3 1
-#endif
 enum playMode_e      : uint8_t  { PM_WEB=0, PM_SDCARD=1 };
 enum BitrateFormat { BF_UNCNOWN, BF_MP3, BF_AAC, BF_FLAC, BF_OGG, BF_WAV };
 
@@ -201,11 +195,6 @@ class Config {
     void setBitrateFormat(BitrateFormat fmt) { configFmt = fmt; }
     void initPlaylist();
     void indexPlaylist();
-    #ifdef USE_SD
-      void initSDPlaylist(bool doIndex = true);
-      
-      void changeMode(int newmode=-1);
-    #endif
     uint8_t fillPlMenu(int from, uint8_t count, bool fromNextion=false);
     char * stationByNum(uint16_t num);
     void setTimezone(int8_t tzh, int8_t tzm);

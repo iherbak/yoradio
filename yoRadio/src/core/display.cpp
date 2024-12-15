@@ -73,7 +73,7 @@ void Display::_buildPager(){
   _title1.init("*", title1Conf, config.theme.title1, config.theme.background);
   _clock.init(clockConf, 0, 0);
     _plcurrent.init("*", playlistConf, config.theme.plcurrent, config.theme.plcurrentbg);
-  _nums.init(numConf, 10, false, config.theme.digit, config.theme.background);
+  //_nums.init(numConf, 10, false, config.theme.digit, config.theme.background);
  
   if(_volbar)   _footer.addWidget( _volbar);
   if(_voltxt)   _footer.addWidget( _voltxt);
@@ -99,18 +99,7 @@ void Display::_buildPager(){
 
   if(_metabackground) pages[PG_DIALOG]->addWidget( _metabackground);
   pages[PG_DIALOG]->addWidget(&_meta);
-  pages[PG_DIALOG]->addWidget(&_nums);
-  
-  #if !defined(DSP_LCD) && DSP_MODEL!=DSP_NOKIA5110
-    pages[PG_DIALOG]->addPage(&_footer);
-  #endif
-  #if !defined(DSP_LCD)
-  if(_plbackground) {
-    pages[PG_PLAYLIST]->addWidget( _plbackground);
-    _plbackground->setHeight(dsp.plItemHeight);
-    _plbackground->moveTo({0,(uint16_t)(dsp.plYStart+dsp.plCurrentPos*dsp.plItemHeight-playlistConf.widget.textsize*2), (int16_t)playlBGConf.width});
-  }
-  #endif
+  //pages[PG_DIALOG]->addWidget(&_nums);
   pages[PG_PLAYLIST]->addWidget(&_plcurrent);
 
   for(const auto& p: pages) _pager.addPage(p);
@@ -205,7 +194,7 @@ void Display::_swichMode(displayMode_e newmode) {
     #endif
     _meta.setAlign(metaConf.widget.align);
     _meta.setText(config.station.name);
-    _nums.setText("");
+    //_nums.setText("");
     _pager.setPage( pages[PG_PLAYER]);
     pm.on_display_player();
   }
@@ -215,7 +204,7 @@ void Display::_swichMode(displayMode_e newmode) {
     #else
       _showDialog(WiFi.localIP().toString().c_str());
     #endif
-    _nums.setText(config.store.volume, numtxtFmt);
+    //_nums.setText(config.store.volume, numtxtFmt);
   }
   if (newmode == LOST)      _showDialog(const_DlgLost);
   if (newmode == UPDATING)  _showDialog(const_DlgUpdate);
@@ -244,7 +233,7 @@ void Display::_drawPlaylist() {
 void Display::_drawNextStationNum(uint16_t num) {
   _setReturnTicker(30);
   _meta.setText(config.stationByNum(num));
-  _nums.setText(num, "%d");
+  //_nums.setText(num, "%d");
 }
 
 void Display::printPLitem(uint8_t pos, const char* item){
@@ -348,7 +337,7 @@ void Display::loop() {
           break;
         }
         case SDFILEINDEX: {
-          if(_mode == SDCHANGE) _nums.setText(request.payload, "%d");
+          //if(_mode == SDCHANGE) _nums.setText(request.payload, "%d");
           break;
         }
         case DSPRSSI: if(_rssi){ _setRSSI(request.payload); } if (_heapbar && config.store.audioinfo) _heapbar->setValue(player.isRunning()?player.inBufferFilled():0); break;
@@ -426,7 +415,7 @@ void Display::_volume() {
   #endif
   if(_mode==VOL) {
     _setReturnTicker(3);
-    _nums.setText(config.store.volume, numtxtFmt);
+    //_nums.setText(config.store.volume, numtxtFmt);
   }
 }
 
