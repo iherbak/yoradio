@@ -3,16 +3,11 @@
 
 #include "config.h"
 #include "player.h"
-#include "telnet.h"
 #include "display.h"
 #include "options.h"
 #include "network.h"
-#include "mqtt.h"
 #include "controls.h"
 #include <Update.h>
-#ifdef USE_SD
-#include "sdmanager.h"
-#endif
 #ifndef MIN_MALLOC
 #define MIN_MALLOC 24112
 #endif
@@ -36,17 +31,6 @@ void handleHTTPArgs(AsyncWebServerRequest *request);
 void onWsEvent(AsyncWebSocket *server, AsyncWebSocketClient *client, AwsEventType type, void *arg, uint8_t *data, size_t len);
 
 bool shouldReboot = false;
-#ifdef MQTT_ROOT_TOPIC
-Ticker mqttplaylistticker;
-bool mqttplaylistblock = false;
-void mqttplaylistSend()
-{
-  mqttplaylistblock = true;
-  mqttplaylistticker.detach();
-  mqttPublishPlaylist();
-  mqttplaylistblock = false;
-}
-#endif
 
 char *updateError()
 {
@@ -258,13 +242,6 @@ void NetServer::processQueue()
       break;
     case PLAYLISTSAVED:
     {
-#ifdef USE_SD
-      if (config.getMode() == PM_SDCARD)
-      {
-        //  config.indexSDPlaylist();
-        config.initSDPlaylist();
-      }
-#endif
       if (config.getMode() == PM_WEB)
       {
         config.indexPlaylist();
@@ -364,11 +341,9 @@ void NetServer::processQueue()
       break;
     case TITLE:
       sprintf(wsbuf, "{\"meta\": \"%s\"}", config.station.title);
-      telnet.printf("##CLI.META#: %s\n> ", config.station.title);
       break;
     case VOLUME:
       sprintf(wsbuf, "{\"vol\": %d}", config.store.volume);
-      telnet.printf("##CLI.VOL#: %d\n", config.store.volume);
       break;
     case NRSSI:
       sprintf(wsbuf, "{\"rssi\": %d}", rssi); /*rssi = 255;*/
@@ -387,7 +362,6 @@ void NetServer::processQueue()
       break;
     case MODE:
       sprintf(wsbuf, "{\"mode\": \"%s\"}", player.status() == PLAYING ? "playing" : "stopped");
-      telnet.info();
       break;
     case EQUALIZER:
       sprintf(wsbuf, "{\"bass\": %d, \"middle\": %d, \"trebble\": %d}", config.store.bass, config.store.middle, config.store.trebble);
@@ -401,12 +375,6 @@ void NetServer::processQueue()
     case GETPLAYERMODE:
       sprintf(wsbuf, "{\"playermode\": \"%s\"}", config.getMode() == PM_SDCARD ? "modesd" : "modeweb");
       break;
-#ifdef USE_SD
-    case CHANGEMODE:
-      config.changeMode(newConfigMode);
-      return;
-      break;
-#endif
     default:
       break;
     }
@@ -999,9 +967,6 @@ void handleUpload(AsyncWebServerRequest *request, String filename, size_t index,
         SPIFFS.remove(PLAYLIST_SD_PATH);
       if (SPIFFS.exists(INDEX_SD_PATH))
         SPIFFS.remove(INDEX_SD_PATH);
-#ifdef USE_SD
-      sdman.clearCardStatus();
-#endif
     }
     freeSpace = (float)SPIFFS.totalBytes() / 100 * 68 - SPIFFS.usedBytes();
     request->_tempFile = SPIFFS.open(TMP_PATH, "w");

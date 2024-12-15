@@ -3,7 +3,6 @@
 #include "player.h"
 
 #include "config.h"
-#include "telnet.h"
 #include "display.h"
 #include "netserver.h"
 
@@ -48,7 +47,6 @@ void Player::resetQueue()
 void Player::stopInfo()
 {
   config.setSmartStart(0);
-  // telnet.info();
   netserver.requestOnChange(MODE, 0);
 }
 
@@ -58,7 +56,6 @@ void Player::setError(const char *e)
   if (hasError())
   {
     config.setTitle(_plError);
-    telnet.printf("##ERROR#:\t%s\n", e);
   }
 }
 
@@ -130,13 +127,6 @@ void Player::loop()
       Audio::setVolume(volToI2S(requestP.payload));
       break;
     }
-#ifdef USE_SD
-    case PR_CHECKSD:
-    {
-      sdman.checkSD();
-      break;
-    }
-#endif
     default:
       break;
     }
@@ -217,43 +207,10 @@ void Player::_play(uint16_t stationId)
   }
   else
   {
-    telnet.printf("##ERROR#:\tError connecting to %s\n", config.station.url);
     SET_PLAY_ERROR("Error connecting to %s", config.station.url);
     _stop(true);
   };
 }
-
-#ifdef MQTT_ROOT_TOPIC
-void Player::browseUrl()
-{
-  setError("");
-  remoteStationName = true;
-  config.setDspOn(1);
-  resumeAfterUrl = _status == PLAYING;
-  display.putRequest(PSTOP);
-  //  setDefaults();
-  setOutputPins(false);
-  config.setTitle(const_PlConnect);
-  if (connecttohost(burl))
-  {
-    _status = PLAYING;
-    config.setTitle("");
-    netserver.requestOnChange(MODE, 0);
-    setOutputPins(true);
-    display.putRequest(PSTART);
-    if (player_on_start_play)
-      player_on_start_play();
-    pm.on_start_play();
-  }
-  else
-  {
-    telnet.printf("##ERROR#:\tError connecting to %s\n", burl);
-    SET_PLAY_ERROR("Error connecting to %s", burl);
-    _stop(true);
-  }
-  memset(burl, 0, MQTT_BURL_SIZE);
-}
-#endif
 
 void Player::prev()
 {

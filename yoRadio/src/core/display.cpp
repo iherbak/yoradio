@@ -74,6 +74,7 @@ void Display::_buildPager(){
   _clock.init(clockConf, 0, 0);
     _plcurrent.init("*", playlistConf, config.theme.plcurrent, config.theme.plcurrentbg);
   //_nums.init(numConf, 10, false, config.theme.digit, config.theme.background);
+  //_nums.init(numConf, 10, false, config.theme.digit, config.theme.background);
  
   if(_volbar)   _footer.addWidget( _volbar);
   if(_voltxt)   _footer.addWidget( _voltxt);
@@ -100,17 +101,6 @@ void Display::_buildPager(){
   if(_metabackground) pages[PG_DIALOG]->addWidget( _metabackground);
   pages[PG_DIALOG]->addWidget(&_meta);
   //pages[PG_DIALOG]->addWidget(&_nums);
-  
-  #if !defined(DSP_LCD) && DSP_MODEL!=DSP_NOKIA5110
-    pages[PG_DIALOG]->addPage(&_footer);
-  #endif
-  #if !defined(DSP_LCD)
-  if(_plbackground) {
-    pages[PG_PLAYLIST]->addWidget( _plbackground);
-    _plbackground->setHeight(dsp.plItemHeight);
-    _plbackground->moveTo({0,(uint16_t)(dsp.plYStart+dsp.plCurrentPos*dsp.plItemHeight-playlistConf.widget.textsize*2), (int16_t)playlBGConf.width});
-  }
-  #endif
   pages[PG_PLAYLIST]->addWidget(&_plcurrent);
 
   for(const auto& p: pages) _pager.addPage(p);

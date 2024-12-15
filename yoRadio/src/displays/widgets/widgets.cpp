@@ -38,8 +38,6 @@ void TextWidget::init(WidgetConfig wconf, uint16_t buffsize, bool uppercase, uin
   memset(_text, 0, _buffsize);
   _oldtext = (char *) malloc(sizeof(char) * _buffsize);
   memset(_oldtext, 0, _buffsize);
-  //_charWidth = wconf.textsize * CHARWIDTH;    // default GFX font
-  //_textheight = wconf.textsize * CHARHEIGHT;   // default GFX font
   dsp.charSize(_config.textsize, _charWidth, _textheight);
   _textwidth = _oldtextwidth = _oldleft = 0;
   _uppercase = uppercase;
