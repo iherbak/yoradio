@@ -23,8 +23,6 @@
 #define HIDE_WEATHER
 #define META_MOVE
 
-//#define bootLogoTop     68
-
 /* SROLLS  */                            /* {{ left, top, fontsize, align }, buffsize, uppercase, width, scrolldelay, scrolldelta, scrolltime } */
 #define SDELTA      2
 #define STIME       400

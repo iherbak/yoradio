@@ -215,11 +215,6 @@ void MyNetwork::begin()
   if (REAL_LEDBUILTIN != 255)
     digitalWrite(REAL_LEDBUILTIN, LOW);
 
-#if RTCSUPPORTED
-  rtc.getTime(&network.timeinfo);
-  mktime(&network.timeinfo);
-  display.putRequest(CLOCK);
-#endif
   ctimer.attach(1, ticks);
   if (network_on_connect)
     network_on_connect();
@@ -291,10 +286,6 @@ void doSync(void *pvParameters)
       mktime(&network.timeinfo);
       display.putRequest(CLOCK);
       network.requestTimeSync(true);
-#if RTCSUPPORTED
-      if (config.isRTCFound())
-        rtc.setTime(&network.timeinfo);
-#endif
     }
     else
     {

@@ -12,12 +12,6 @@ STORE YOUR SETTINGS IN THE *** myoptions.h *** FILE.
 #if __has_include("../../myoptions.h")
   #include "../../myoptions.h"        /* <- write your variable values here */
 #endif
-#if __has_include("../../mytheme.h")
-  #include "../../mytheme.h"            /* <- Theme file */
-#endif
-#if __has_include("../../mqttoptions.h")
-  #include "../../mqttoptions.h"
-#endif
 /*******************************************************
 
 The connection tables are located here https://github.com/e2002/yoradio#connection-tables
@@ -54,9 +48,6 @@ The connection tables are located here https://github.com/e2002/yoradio#connecti
 #define DSP_4002        26    // 40x2           https://www.aliexpress.com/item/1005006212594870.html
 #define DSP_CUSTOM      101   // your display
 
-#ifndef DSP_MODEL
-  #define DSP_MODEL  DSP_DUMMY
-#endif
 #ifndef DSP_HSPI
   #define DSP_HSPI   false      // use HSPI for displays (miso=12, mosi=13, clk=14) instead of VSPI (by default)
 #endif
@@ -465,16 +456,4 @@ The connection tables are located here https://github.com/e2002/yoradio#connecti
 
 #define EN  1
 #define RU  2
-#ifndef L10N_LANGUAGE
-  #define L10N_LANGUAGE EN
-#endif
-
-#ifndef VSPI
-  #define VSPI  3
-#endif
-#ifndef HSPI
-  #define HSPI  1
-#endif
-
-
 #endif

@@ -7,10 +7,6 @@
 #include "netserver.h"
 Config config;
 
-#if DSP_HSPI || TS_HSPI || VS_HSPI
-SPIClass SPI2(HSPI);
-#endif
-
 void u8fix(char *src)
 {
   char last = src[strlen(src) - 1];
@@ -36,29 +32,9 @@ void Config::init()
 {
   EEPROM.begin(EEPROM_SIZE);
   bootInfo();
-#if RTCSUPPORTED
-  _rtcFound = false;
-  BOOTLOG("RTC begin(SDA=%d,SCL=%d)", RTC_SDA, RTC_SCL);
-  if (rtc.init())
-  {
-    BOOTLOG("done");
-    _rtcFound = true;
-  }
-  else
-  {
-    BOOTLOG("[ERROR] - Couldn't find RTC");
-  }
-#endif
   emptyFS = true;
 #if IR_PIN != 255
   irindex = -1;
-#endif
-#if defined(SD_SPIPINS) || SD_HSPI
-#if !defined(SD_SPIPINS)
-  SDSPI.begin();
-#else
-  SDSPI.begin(SD_SPIPINS); // SCK, MISO, MOSI
-#endif
 #endif
   eepromRead(EEPROM_START, store);
   if (store.config_set != 4262)
@@ -69,26 +45,20 @@ void Config::init()
   sdSnuffle = bitRead(store.play_mode, 2);
   store.play_mode = store.play_mode & 0b11;
   _initHW();
-  // if (!SPIFFS.begin(false, "/spiffs", 30)) {
   if (!SPIFFS.begin(true))
   {
     Serial.println("##[ERROR]#\tSPIFFS Mount Failed");
     return;
   }
   BOOTLOG("SPIFFS mounted");
-  // emptyFS = !SPIFFS.exists("/www/index.html");
   emptyFS = _isFSempty();
   if (emptyFS)
     BOOTLOG("SPIFFS is empty!");
   ssidsCount = 0;
-  //!!_cardStatus = CS_NONE;
   _SDplaylistFS = &SPIFFS;
-  // if(SDC_CS!=255) randomSeed(analogRead(SDC_CS));
   randomSeed(esp_random());
   backupSDStation = 0;
-  // checkSD();
   _bootDone = false;
-  // bootInfo();
 }
 
 bool Config::spiffsCleanup()
@@ -176,7 +146,6 @@ void Config::loadTheme()
   theme.playlist[2] = color565(COLOR_PLAYLIST_2);
   theme.playlist[3] = color565(COLOR_PLAYLIST_3);
   theme.playlist[4] = color565(COLOR_PLAYLIST_4);
-#include "../displays/tools/tftinverttitle.h"
 }
 
 template <class T>

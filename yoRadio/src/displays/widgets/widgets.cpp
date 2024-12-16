@@ -104,8 +104,6 @@ void ScrollWidget::init(const char* separator, ScrollConfig conf, uint16_t fgcol
   _startscrolldelay = conf.startscrolldelay;
   _scrolldelta = conf.scrolldelta;
   _scrolltime = conf.scrolltime;
-  //_charWidth = CHARWIDTH * _config.textsize;           // default GFX font
-  //_textheight = CHARHEIGHT * _config.textsize;          // default GFX font
   dsp.charSize(_config.textsize, _charWidth, _textheight);
   _sepwidth = strlen(_sep) * _charWidth;
   _width = conf.width;
